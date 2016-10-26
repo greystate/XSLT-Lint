@@ -13,6 +13,22 @@ This initial linter catches some of those things.
 (Note: The well-formedness error is actually caught by the XML parser when it tries to load the stylesheet.
 Just so you don't waste a lot of time digging for that :-)
 
+## Hook setup
+
+Here's the Bash script I whipped together for this:
+
+```bash
+msg=$(xsltproc --xinclude $PATH_TO_XSLT_LINT_FILE $CK_INPUT_PATH)
+if [[ "" = "$msg" ]]; then
+	exit 0
+else
+	echo $msg >&2
+	exit 1
+fi
+```
+
+It's set up as a *Shell Script* hook to execute when a file is processed and its `Filename` `Ends With` **.xslt**
+
 ## WIP
 
 This is a work in progress, obviously - let me know if you have any questions!
