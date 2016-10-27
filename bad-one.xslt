@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
 	## bad-one.xslt
+
+	Contains lots of wrong-doings as a test-file for the `XSLTLint.xslt` file.
+
 -->
 <xsl:stylesheet
 	version="1.0"
@@ -18,7 +21,11 @@
 	
 	<xsl:template match="/">
 		<xsl:apply-templates select="$currentPage" />
+		
+		<!-- This calls a non-existing template -->
 		<xsl:call-template name="output1" />
+		
+		<!-- This calls a template that is wrongly declared as a match template -->
 		<xsl:call-template name="output2" />
 	</xsl:template>
 	
