@@ -31,6 +31,7 @@
 		</xsl:for-each>
 	</xsl:variable>
 	<xsl:variable name="ns-prefixes" select="make:node-set($ns-prefixes-RTF)/ns" />
+	<xsl:variable name="no-go-chars" select="concat($apos, $quot, '/(;)=&amp;&lt;&gt;#€%!?+^`´@*\')" />
 	
 	<xsl:template match="/">
 		<!--
@@ -82,11 +83,21 @@
 	-->
 	<xsl:template match="@select" mode="undeclared-ns-prefix">
 		<xsl:variable name="prefix" select="substring-before(., ':')" />
-		<xsl:if test="not($ns-prefixes[@prefix = $prefix])">
-			<xsl:call-template name="error">
-				<xsl:with-param name="message" select="concat('An undeclared namespace prefix (', $prefix, ':) is being used.')" />
-			</xsl:call-template>
+		
+		<!--
+		Ideally, this should obviously be "properly" parsed, but we can eliminate a lot of false positives
+		just by doing a little filtering - throw away all characters that shouldn't be used in a prefix
+		and check if the string is still (probably) the same... 
+		-->
+		<xsl:if test="string-length($prefix) = string-length(translate($prefix, $no-go-chars, ''))">
+			<!-- Go through the declared prefixes to find a match -->
+			<xsl:if test="not($ns-prefixes[@prefix = $prefix])">
+				<xsl:call-template name="error">
+					<xsl:with-param name="message" select="concat('An undeclared namespace prefix (', $prefix, ':) is being used.')" />
+				</xsl:call-template>
+			</xsl:if>
 		</xsl:if>
+		
 	</xsl:template>
 	
 	<!--
