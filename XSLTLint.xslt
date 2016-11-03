@@ -86,6 +86,13 @@
 				<xsl:with-param name="linefeed" select="false()" />
 			</xsl:call-template>
 		</xsl:if>
+		
+		<!-- Check for misplaced `<xsl:param>` (where it should have been `<xsl:with-param>`) -->
+		<xsl:if test="xsl:param">
+			<xsl:call-template name="error">
+				<xsl:with-param name="message" select="concat('A call to &quot;', $template, '&quot; contains misplaced `&lt;xsl:param&gt;` (you probably mean `&lt;xsl:with-param&gt;`).')" />
+			</xsl:call-template>
+		</xsl:if>
 	</xsl:template>
 	
 	<!--

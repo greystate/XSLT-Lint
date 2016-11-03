@@ -27,10 +27,20 @@
 		
 		<!-- This calls a template that is wrongly declared as a match template -->
 		<xsl:call-template name="output2" />
+		
+		<!-- This performs a call using param instead of with-param -->
+		<xsl:call-template name="output3">
+			<xsl:param name="today" select="'2006-01-01'" />
+		</xsl:call-template>
+		
 	</xsl:template>
 	
 	<xsl:template match="output2">
 		<p>Output</p>
+	</xsl:template>
+
+	<xsl:template name="output3">
+		<xsl:param name="today" />
 	</xsl:template>
 
 </xsl:stylesheet>
