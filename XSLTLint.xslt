@@ -74,12 +74,16 @@
 						<xsl:call-template name="error">
 							<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
 						</xsl:call-template>
-					</xsl:if>	
+					</xsl:if>
 				</xsl:when>
 				<xsl:otherwise>
+					<xsl:call-template name="error">
+						<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
+					</xsl:call-template>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:if>
+		
 		<xsl:if test="key('matchTemplatesIndex', $template)">
 			<xsl:call-template name="error">
 				<xsl:with-param name="message" select="'There is however, a *match template* defined with this name, so looks like a #snippetfail'" />
