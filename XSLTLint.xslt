@@ -61,20 +61,30 @@
 	<!--
 	Test if we're accidentally calling a template that doesn't exist.
 	It may actually be that it's defined as a match template instead.
+	Or it could actually exist in an included/imported file.
 	-->
 	<xsl:template match="xsl:call-template">
 		<xsl:variable name="template" select="@name" />
+		<xsl:variable name="includes" select="/xsl:stylesheet/*[self::xsl:include or self::xsl:import]" />
 
 		<xsl:if test="not(key('namedTemplatesIndex', $template))">
+			<xsl:choose>
+				<xsl:when test="$includes">
+					<xsl:if test="not(document($includes/@href, /)//xsl:template[@name = $template])">
+						<xsl:call-template name="error">
+							<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
+						</xsl:call-template>
+					</xsl:if>	
+				</xsl:when>
+				<xsl:otherwise>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:if>
+		<xsl:if test="key('matchTemplatesIndex', $template)">
 			<xsl:call-template name="error">
-				<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
+				<xsl:with-param name="message" select="'There is however, a *match template* defined with this name, so looks like a #snippetfail'" />
+				<xsl:with-param name="linefeed" select="false()" />
 			</xsl:call-template>
-			<xsl:if test="key('matchTemplatesIndex', $template)">
-				<xsl:call-template name="error">
-					<xsl:with-param name="message" select="'There is however, a *match template* defined with this name, so looks like a #snippetfail'" />
-					<xsl:with-param name="linefeed" select="false()" />
-				</xsl:call-template>
-			</xsl:if>
 		</xsl:if>
 	</xsl:template>
 	
