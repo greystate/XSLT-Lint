@@ -36,7 +36,8 @@ It's set up as a *Shell Script* hook to execute when a file is processed and its
 You also need to configure XSLT as one of the "Other" languages in CodeKit, so
 CodeKit knows that if an XSLT file is saved, it should be processed somehow. I've set it up like this:
 
-![CodeKit 3 Languages setup for XSLT](codekit3-xslt-output.png)
+<img src="codekit3-xslt-output.png" width="518" height="536" alt="CodeKit 3 Languages setup for XSLT" />
+
 
 ## WIP
 
