@@ -41,14 +41,14 @@
 		<xsl:apply-templates select="//@select[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
 		
 		<!-- Now process the various elements in the stylesheet -->
-		<xsl:apply-templates select="xsl:*" />
+		<xsl:apply-templates select="*" />
 		
 	</xsl:template>
 	
-	<xsl:template match="xsl:*">
-		<xsl:apply-templates select="xsl:*" />
+	<xsl:template match="*">
+		<xsl:apply-templates select="*" />
 	</xsl:template>
-
+	
 	<!--
 	Checks for variable declarations including the dollar-sign (it happens)
 	-->
