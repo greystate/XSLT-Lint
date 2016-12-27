@@ -8,8 +8,13 @@
 <xsl:stylesheet
 	version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:test="http://xmlns.greystate.dk/2016/testing"
+	xmlns:exslt="http://exslt.org/common"
+	exclude-result-prefixes="test"
 >
-
+	
+	<!-- The `exclude-result-prefixes` attribute above is missing the `exslt` prefix -->
+	
 	<xsl:output method="html" indent="yes" omit-xml-declaration="yes" />
 
 	<xsl:param name="currentPageId" />

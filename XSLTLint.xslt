@@ -44,8 +44,22 @@
 		<!--
 		Start by testing some special cases
 		-->
+			
 		<!-- Undeclared namespaces -->
 		<xsl:apply-templates select="$selectAttrs[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
+
+		<!-- Grab a reference inside this doc -->
+		<xsl:variable name="excluded-prefixes" select="xsl:stylesheet/@exclude-result-prefixes" />
+		
+		<!-- Missing prefixes in `exclude-result-prefixes` attribute -->
+		<xsl:for-each select="$ns-prefixes">
+			<xsl:variable name="prefix" select="@prefix" />
+			<xsl:if test="not(contains('xml xsl', $prefix)) and not(contains($excluded-prefixes, $prefix))">
+				<xsl:call-template name="error">
+					<xsl:with-param name="message" select="concat('Prefix ', $quot, $prefix, ':', $quot, ' is not excluded (so will be copied to result document).')" />
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:for-each>
 		
 		<!-- Undeclared variables/params -->
 		<xsl:apply-templates select="$exprAttrs[starts-with(., '$')]" mode="undeclared-variable" />
@@ -141,7 +155,7 @@
 	-->
 	<xsl:template match="@select | @test" mode="undeclared-variable">
 		<!-- Simplest scenario: `<xsl:value-of select="$variable" />` -->
-		<xsl:if test="starts-with(., '$') and string-length(substring-after(., '$')) = string-length(translate(., '$/:', ''))">
+		<xsl:if test="starts-with(., '$') and string-length(substring-after(., '$')) = string-length(translate(., '$/:[]()', ''))">
 			<xsl:if test="not(key('variableNamesIndex', substring-after(., '$')))">
 				<xsl:call-template name="error">
 					<xsl:with-param name="message" select="concat('Variable/parameter ', ., ' is undeclared.')" />
