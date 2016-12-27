@@ -29,6 +29,9 @@
 		<!-- This one IS declared so shouldn't throw an error -->
 		<xsl:value-of select="$currentPageId" />
 		
+		<!-- This uses an AVT inside an expression -->
+		<xsl:value-of select="{$currentPageId}" />
+		
 		<!-- This calls a non-existing template -->
 		<xsl:call-template name="output1" />
 		

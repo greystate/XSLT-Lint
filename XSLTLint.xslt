@@ -53,6 +53,8 @@
 		<!-- Undeclared keys -->
 		<xsl:apply-templates select="$exprAttrs[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
 		
+		<xsl:apply-templates select="$selectAttrs[contains(., '{') and contains(., '}')]" mode="illegal-avt" />
+		
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
 		
@@ -158,6 +160,12 @@
 				<xsl:with-param name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
 			</xsl:call-template>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="@select" mode="illegal-avt">
+		<xsl:call-template name="error">
+			<xsl:with-param name="message" select="concat('An AVT (Attribute Value Template) was used in a `@select` attribute (', $quot, ., $quot, ').')" />
+		</xsl:call-template>
 	</xsl:template>
 	
 	<!--
