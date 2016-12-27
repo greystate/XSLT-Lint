@@ -22,6 +22,13 @@
 	<xsl:template match="/">
 		<xsl:apply-templates select="$currentPage" />
 		
+		<!-- These references undeclared variables/params -->
+		<xsl:value-of select="$not-a-variable" />
+		<xsl:if test="$not-a-variable-either"><!-- Do something --></xsl:if>
+		
+		<!-- This one IS declared so shouldn't throw an error -->
+		<xsl:value-of select="$currentPageId" />
+		
 		<!-- This calls a non-existing template -->
 		<xsl:call-template name="output1" />
 		
@@ -32,7 +39,6 @@
 		<xsl:call-template name="output3">
 			<xsl:param name="today" select="'2006-01-01'" />
 		</xsl:call-template>
-		
 	</xsl:template>
 	
 	<xsl:template match="output2">

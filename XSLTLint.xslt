@@ -19,6 +19,7 @@
 
 	<xsl:key name="namedTemplatesIndex" match="xsl:template" use="@name" />
 	<xsl:key name="matchTemplatesIndex" match="xsl:template" use="@match" />
+	<xsl:key name="variableNamesIndex" match="xsl:variable | xsl:param" use="@name" />
 
 	<!-- Global variables -->
 	<xsl:variable name="apos">&apos;</xsl:variable>
@@ -39,6 +40,9 @@
 		-->
 		<!-- Undeclared namespaces -->
 		<xsl:apply-templates select="//@select[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
+		
+		<!-- Undeclared variables/params -->
+		<xsl:apply-templates select="//@select[starts-with(., '$')] | //@test[starts-with(., '$')]" mode="undeclared-variable" />
 		
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
@@ -119,6 +123,20 @@
 			</xsl:if>
 		</xsl:if>
 		
+	</xsl:template>
+	
+	<!--
+	Check for undeclared variables
+	-->
+	<xsl:template match="@select | @test" mode="undeclared-variable">
+		<!-- Simplest scenario: `<xsl:value-of select="$variable" />` -->
+		<xsl:if test="starts-with(., '$') and string-length(substring-after(., '$') = string-length(translate(., '$', '')))">
+			<xsl:if test="not(key('variableNamesIndex', substring-after(., '$')))">
+				<xsl:call-template name="error">
+					<xsl:with-param name="message" select="concat('Variable/parameter ', ., ' is undeclared.')" />
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:if>
 	</xsl:template>
 	
 	<!--
