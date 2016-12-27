@@ -32,6 +32,9 @@
 		<!-- This calls a non-existing template -->
 		<xsl:call-template name="output1" />
 		
+		<!-- This uses an undeclared key -->
+		<xsl:apply-templates select="key('not-a-key', 'value')" />
+		
 		<!-- This calls a template that is wrongly declared as a match template -->
 		<xsl:call-template name="output2" />
 		

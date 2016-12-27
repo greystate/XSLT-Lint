@@ -7,6 +7,7 @@
 <!DOCTYPE xsl:stylesheet [
 	<!ENTITY LF "&#x0a;">
 	<!ENTITY TAB "&#x09;">
+	<!ENTITY KEY_BEGIN "'key('">
 ]>
 <xsl:stylesheet
 	version="1.0"
@@ -17,9 +18,10 @@
 
 	<xsl:output method="text" indent="no" omit-xml-declaration="yes" />
 
-	<xsl:key name="namedTemplatesIndex" match="xsl:template" use="@name" />
-	<xsl:key name="matchTemplatesIndex" match="xsl:template" use="@match" />
-	<xsl:key name="variableNamesIndex" match="xsl:variable | xsl:param" use="@name" />
+	<xsl:key name="namedTemplatesIndex" match="xsl:template"             use="@name" />
+	<xsl:key name="matchTemplatesIndex" match="xsl:template"             use="@match" />
+	<xsl:key name="variableNamesIndex"  match="xsl:variable | xsl:param" use="@name" />
+	<xsl:key name="keyNamesIndex"       match="xsl:key"                  use="@name" />
 
 	<!-- Global variables -->
 	<xsl:variable name="apos">&apos;</xsl:variable>
@@ -43,6 +45,9 @@
 		
 		<!-- Undeclared variables/params -->
 		<xsl:apply-templates select="//@select[starts-with(., '$')] | //@test[starts-with(., '$')]" mode="undeclared-variable" />
+		
+		<!-- Undeclared keys -->
+		<xsl:apply-templates select="//@select[contains(., &KEY_BEGIN;)] | //@test[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
 		
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
@@ -130,12 +135,24 @@
 	-->
 	<xsl:template match="@select | @test" mode="undeclared-variable">
 		<!-- Simplest scenario: `<xsl:value-of select="$variable" />` -->
-		<xsl:if test="starts-with(., '$') and string-length(substring-after(., '$') = string-length(translate(., '$', '')))">
+		<xsl:if test="starts-with(., '$') and string-length(substring-after(., '$')) = string-length(translate(., '$/:', ''))">
 			<xsl:if test="not(key('variableNamesIndex', substring-after(., '$')))">
 				<xsl:call-template name="error">
 					<xsl:with-param name="message" select="concat('Variable/parameter ', ., ' is undeclared.')" />
 				</xsl:call-template>
 			</xsl:if>
+		</xsl:if>
+	</xsl:template>
+	
+	<!--
+	Check for missing `xsl:key` declaration
+	-->
+	<xsl:template match="@select | @test" mode="undeclared-key">
+		<xsl:variable name="keyName" select="substring-before(substring(substring-after(., &KEY_BEGIN;), 2), $apos)" />
+		<xsl:if test="not(key('keyNamesIndex', $keyName))">
+			<xsl:call-template name="error">
+				<xsl:with-param name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
+			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
 	
