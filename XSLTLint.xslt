@@ -36,18 +36,22 @@
 	<xsl:variable name="ns-prefixes" select="make:node-set($ns-prefixes-RTF)/ns" />
 	<xsl:variable name="no-go-chars" select="concat($apos, $quot, '/(;)=&amp;&lt;&gt;#€%!?+^`´@*\')" />
 	
+	<xsl:variable name="selectAttrs" select="//xsl:*/@select" />
+	<xsl:variable name="testAttrs" select="//xsl:*/@test" />
+	<xsl:variable name="exprAttrs" select="$selectAttrs | $testAttrs" />
+	
 	<xsl:template match="/">
 		<!--
 		Start by testing some special cases
 		-->
 		<!-- Undeclared namespaces -->
-		<xsl:apply-templates select="//@select[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
+		<xsl:apply-templates select="$selectAttrs[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
 		
 		<!-- Undeclared variables/params -->
-		<xsl:apply-templates select="//@select[starts-with(., '$')] | //@test[starts-with(., '$')]" mode="undeclared-variable" />
+		<xsl:apply-templates select="$exprAttrs[starts-with(., '$')]" mode="undeclared-variable" />
 		
 		<!-- Undeclared keys -->
-		<xsl:apply-templates select="//@select[contains(., &KEY_BEGIN;)] | //@test[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
+		<xsl:apply-templates select="$exprAttrs[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
 		
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
