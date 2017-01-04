@@ -102,17 +102,18 @@
 		<xsl:variable name="template" select="@name" />
 
 		<xsl:if test="not(key('namedTemplatesIndex', $template))">
+			<xsl:variable name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
 			<xsl:choose>
 				<xsl:when test="$includes">
 					<xsl:if test="not(document($includes/@href, /)//xsl:template[@name = $template])">
 						<xsl:call-template name="error">
-							<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
+							<xsl:with-param name="message" select="$message" />
 						</xsl:call-template>
 					</xsl:if>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="error">
-						<xsl:with-param name="message" select="concat('No template named &quot;', $template, '&quot; exists, yet it', $apos, 's being called somewhere. ')" />
+						<xsl:with-param name="message" select="$message" />
 					</xsl:call-template>
 				</xsl:otherwise>
 			</xsl:choose>
@@ -139,7 +140,7 @@
 	<xsl:template match="xsl:apply-templates">
 		<xsl:variable name="mode" select="@mode" />
 		
-		<xsl:if test="not(key('modedTemplatesIndex', $mode))">
+		<xsl:if test="normalize-space($mode) and not(key('modedTemplatesIndex', $mode))">
 			<xsl:variable name="message" select="concat('An &lt;xsl:apply-templates /&gt; instruction use the mode ', $apos, $mode, $apos, ' but no templates are defined in that mode. Did you forget to add it?')" />
 			<xsl:choose>
 				<xsl:when test="$includes">
