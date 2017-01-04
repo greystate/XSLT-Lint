@@ -50,6 +50,10 @@
 		<xsl:call-template name="output3">
 			<xsl:param name="today" select="'2006-01-01'" />
 		</xsl:call-template>
+		
+		<!-- This uses a non-existing mode -->
+		<xsl:apply-templates select="$currentPageId" mode="not-an-actual-mode" />
+		
 	</xsl:template>
 	
 	<xsl:template match="output2">

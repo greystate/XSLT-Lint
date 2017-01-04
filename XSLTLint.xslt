@@ -18,8 +18,10 @@
 
 	<xsl:output method="text" indent="no" omit-xml-declaration="yes" />
 
+	<!-- Indexes -->
 	<xsl:key name="namedTemplatesIndex" match="xsl:template"             use="@name" />
 	<xsl:key name="matchTemplatesIndex" match="xsl:template"             use="@match" />
+	<xsl:key name="modedTemplatesIndex" match="xsl:template"             use="@mode" />
 	<xsl:key name="variableNamesIndex"  match="xsl:variable | xsl:param" use="@name" />
 	<xsl:key name="keyNamesIndex"       match="xsl:key"                  use="@name" />
 
@@ -39,6 +41,9 @@
 	<xsl:variable name="selectAttrs" select="//xsl:*/@select" />
 	<xsl:variable name="testAttrs" select="//xsl:*/@test" />
 	<xsl:variable name="exprAttrs" select="$selectAttrs | $testAttrs" />
+	
+	<!-- Grab any includes/imports -->
+	<xsl:variable name="includes" select="/xsl:stylesheet/*[self::xsl:include or self::xsl:import]" />
 	
 	<xsl:template match="/">
 		<!--
@@ -67,6 +72,7 @@
 		<!-- Undeclared keys -->
 		<xsl:apply-templates select="$exprAttrs[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
 		
+		<!-- Illegal AVTs -->
 		<xsl:apply-templates select="$selectAttrs[contains(., '{') and contains(., '}')]" mode="illegal-avt" />
 		
 		<!-- Now process the various elements in the stylesheet -->
@@ -94,7 +100,6 @@
 	-->
 	<xsl:template match="xsl:call-template">
 		<xsl:variable name="template" select="@name" />
-		<xsl:variable name="includes" select="/xsl:stylesheet/*[self::xsl:include or self::xsl:import]" />
 
 		<xsl:if test="not(key('namedTemplatesIndex', $template))">
 			<xsl:choose>
@@ -125,6 +130,31 @@
 			<xsl:call-template name="error">
 				<xsl:with-param name="message" select="concat('A call to &quot;', $template, '&quot; contains misplaced `&lt;xsl:param&gt;` (you probably mean `&lt;xsl:with-param&gt;`).')" />
 			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	
+	<!--
+	Test if we accidentally forgot to add a mode to a template
+	-->
+	<xsl:template match="xsl:apply-templates">
+		<xsl:variable name="mode" select="@mode" />
+		
+		<xsl:if test="not(key('modedTemplatesIndex', $mode))">
+			<xsl:variable name="message" select="concat('An &lt;xsl:apply-templates /&gt; instruction use the mode ', $apos, $mode, $apos, ' but no templates are defined in that mode. Did you forget to add it?')" />
+			<xsl:choose>
+				<xsl:when test="$includes">
+					<xsl:if test="not(document($includes/@href, /)//xsl:template[@mode = $mode])">
+						<xsl:call-template name="error">
+							<xsl:with-param name="message" select="$message" />
+						</xsl:call-template>
+					</xsl:if>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="error">
+						<xsl:with-param name="message" select="$message" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:if>
 	</xsl:template>
 	
