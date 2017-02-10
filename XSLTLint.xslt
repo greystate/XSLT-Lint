@@ -200,10 +200,22 @@
 	-->
 	<xsl:template match="@select | @test" mode="undeclared-key">
 		<xsl:variable name="keyName" select="substring-before(substring(substring-after(., &KEY_BEGIN;), 2), $apos)" />
+		<xsl:variable name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
 		<xsl:if test="not(key('keyNamesIndex', $keyName))">
-			<xsl:call-template name="error">
-				<xsl:with-param name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
-			</xsl:call-template>
+			<xsl:choose>
+				<xsl:when test="$includes">
+					<xsl:if test="not(document($includes/@href, /)//xsl:key[@name = $keyName])">
+						<xsl:call-template name="error">
+							<xsl:with-param name="message" select="$message" />
+						</xsl:call-template>
+					</xsl:if>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="error">
+						<xsl:with-param name="message" select="$message" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:if>
 	</xsl:template>
 
