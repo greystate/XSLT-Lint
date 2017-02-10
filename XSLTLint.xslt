@@ -36,7 +36,7 @@
 		</xsl:for-each>
 	</xsl:variable>
 	<xsl:variable name="ns-prefixes" select="make:node-set($ns-prefixes-RTF)/ns" />
-	<xsl:variable name="no-go-chars" select="concat($apos, $quot, '/(;)=&amp;&lt;&gt;#€%!?+^`´@*\')" />
+	<xsl:variable name="no-go-chars" select="concat($apos, $quot, '/(;)=&amp;&lt;&gt;$#€%!?+^`´@*\')" />
 	
 	<xsl:variable name="selectAttrs" select="//xsl:*/@select" />
 	<xsl:variable name="testAttrs" select="//xsl:*/@test" />
