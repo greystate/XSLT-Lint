@@ -14,6 +14,8 @@ runs:
       env:
         INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
     - name: Report linting status
+      id: reporting
+      shell: bash
       run: |
         if [[ "${{ steps.linting.outputs.report }}" == "" ]]; then
           exit 0
