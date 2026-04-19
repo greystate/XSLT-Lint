@@ -1,0 +1,15 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  test_file:
+    runs-on: ubuntu-latest
+    name: Run XSLT Lint on itself
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - id: xsltlint-self-test
+        uses: ./
+        with:
+          xslt-file: 'XSLTLint.xslt'
