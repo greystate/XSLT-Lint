@@ -8,7 +8,16 @@ runs:
   using: 'composite'
   steps:
     - name: Check file
+      id: linting
       shell: bash
-      run: xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE
+      run: xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE | echo "report=$@" >> $GITHUB_OUTPUT
       env:
         INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
+    - name: Report linting status
+      run: |
+        if [[ "${{ steps.linting.outputs.report }}" == "" ]]; then
+          exit 0
+        else
+          echo "$GITHUB_OUTPUT"
+          exit 0
+        fi
