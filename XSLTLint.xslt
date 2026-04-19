@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
 	## XSLTLint.xslt
-	
+
 	Tests an XSLT file for some common (and frankly, embarrassing) errors.
 -->
 <!DOCTYPE xsl:stylesheet [
@@ -37,25 +37,25 @@
 	</xsl:variable>
 	<xsl:variable name="ns-prefixes" select="make:node-set($ns-prefixes-RTF)/ns" />
 	<xsl:variable name="no-go-chars" select="concat($apos, $quot, '/(;)=&amp;&lt;&gt;$#€%!?+^`´@*\')" />
-	
+
 	<xsl:variable name="selectAttrs" select="//xsl:*/@select" />
 	<xsl:variable name="testAttrs" select="//xsl:*/@test" />
 	<xsl:variable name="exprAttrs" select="$selectAttrs | $testAttrs" />
-	
+
 	<!-- Grab any includes/imports -->
 	<xsl:variable name="includes" select="/xsl:stylesheet/*[self::xsl:include or self::xsl:import]" />
-	
+
 	<xsl:template match="/">
 		<!--
 		Start by testing some special cases
 		-->
-			
+
 		<!-- Undeclared namespaces -->
 		<xsl:apply-templates select="$selectAttrs[substring-before(., ':')][not(substring-before(., '::'))]" mode="undeclared-ns-prefix" />
 
 		<!-- Grab a reference inside this doc -->
 		<xsl:variable name="excluded-prefixes" select="xsl:stylesheet/@exclude-result-prefixes" />
-		
+
 		<!-- Missing prefixes in `exclude-result-prefixes` attribute -->
 		<xsl:for-each select="$ns-prefixes">
 			<xsl:variable name="prefix" select="@prefix" />
@@ -65,25 +65,25 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:for-each>
-		
+
 		<!-- Undeclared variables/params -->
 		<xsl:apply-templates select="$exprAttrs[starts-with(., '$')]" mode="undeclared-variable" />
-		
+
 		<!-- Undeclared keys -->
 		<xsl:apply-templates select="$exprAttrs[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
-		
+
 		<!-- Illegal AVTs -->
 		<xsl:apply-templates select="$selectAttrs[contains(., '{') and contains(., '}')]" mode="illegal-avt" />
-		
+
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
-		
+
 	</xsl:template>
-	
+
 	<xsl:template match="*">
 		<xsl:apply-templates select="*" />
 	</xsl:template>
-	
+
 	<!--
 	Checks for variable declarations including the dollar-sign (it happens)
 	-->
@@ -118,14 +118,14 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:if>
-		
+
 		<xsl:if test="key('matchTemplatesIndex', $template)">
 			<xsl:call-template name="error">
 				<xsl:with-param name="message" select="'There is however, a *match template* defined with this name, so looks like a #snippetfail'" />
 				<xsl:with-param name="linefeed" select="false()" />
 			</xsl:call-template>
 		</xsl:if>
-		
+
 		<!-- Check for misplaced `<xsl:param>` (where it should have been `<xsl:with-param>`) -->
 		<xsl:if test="xsl:param">
 			<xsl:call-template name="error">
@@ -133,13 +133,13 @@
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<!--
 	Test if we accidentally forgot to add a mode to a template
 	-->
 	<xsl:template match="xsl:apply-templates">
 		<xsl:variable name="mode" select="@mode" />
-		
+
 		<xsl:if test="normalize-space($mode) and not(key('modedTemplatesIndex', $mode))">
 			<xsl:variable name="message" select="concat('An &lt;xsl:apply-templates /&gt; instruction use the mode ', $apos, $mode, $apos, ' but no templates are defined in that mode. Did you forget to add it?')" />
 			<xsl:choose>
@@ -158,17 +158,17 @@
 			</xsl:choose>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<!--
 	Check for namespace-prefixes that haven't been declared
 	-->
 	<xsl:template match="@select" mode="undeclared-ns-prefix">
 		<xsl:variable name="prefix" select="substring-before(., ':')" />
-		
+
 		<!--
 		Ideally, this should obviously be "properly" parsed, but we can eliminate a lot of false positives
 		just by doing a little filtering - throw away all characters that shouldn't be used in a prefix
-		and check if the string is still (probably) the same... 
+		and check if the string is still (probably) the same...
 		-->
 		<xsl:if test="string-length($prefix) = string-length(translate($prefix, $no-go-chars, ''))">
 			<!-- Go through the declared prefixes to find a match -->
@@ -178,9 +178,9 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:if>
-		
+
 	</xsl:template>
-	
+
 	<!--
 	Check for undeclared variables
 	-->
@@ -194,14 +194,14 @@
 			</xsl:if>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<!--
 	Check for missing `xsl:key` declaration
 	-->
 	<xsl:template match="@select | @test" mode="undeclared-key">
 		<xsl:variable name="keyName" select="substring-before(substring(substring-after(., &KEY_BEGIN;), 2), $apos)" />
 		<xsl:variable name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
-		<xsl:if test="not(key('keyNamesIndex', $keyName))">
+		<xsl:if test="normalize-space($keyName) and not(key('keyNamesIndex', $keyName))">
 			<xsl:choose>
 				<xsl:when test="$includes">
 					<xsl:if test="not(document($includes/@href, /)//xsl:key[@name = $keyName])">
@@ -224,7 +224,7 @@
 			<xsl:with-param name="message" select="concat('An AVT (Attribute Value Template) was used in a `@select` attribute (', $quot, ., $quot, ').')" />
 		</xsl:call-template>
 	</xsl:template>
-	
+
 	<!--
 	Output template for generating the error messages
 	 -->
@@ -234,5 +234,5 @@
 		<xsl:if test="$linefeed"><xsl:value-of select="$LF" /></xsl:if>
 		<xsl:value-of select="$message" />
 	</xsl:template>
-	
+
 </xsl:stylesheet>
