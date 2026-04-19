@@ -73,7 +73,7 @@
 		<xsl:apply-templates select="$exprAttrs[contains(., &KEY_BEGIN;)]" mode="undeclared-key" />
 
 		<!-- Illegal AVTs -->
-		<xsl:apply-templates select="$selectAttrs[contains(., '{') and contains(., '}')][not(contains('An AVT'))]" mode="illegal-avt" />
+		<xsl:apply-templates select="$selectAttrs[contains(., '{') and contains(., '}')][not(contains(., 'An AVT'))]" mode="illegal-avt" />
 
 		<!-- Now process the various elements in the stylesheet -->
 		<xsl:apply-templates select="*" />
