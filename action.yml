@@ -1,5 +1,3 @@
-#   xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE >> ${{ runner.temp }}/report.txt
-#   cat ${{ runner.temp }}/report.txt >> "$GITHUB_OUTPUT"
 name: 'XSLT Linter'
 description: 'Check an XSLT stylesheet for some common mistakes'
 inputs:
@@ -13,16 +11,16 @@ runs:
       id: linting
       shell: bash
       run: |
-        xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE | echo "report=$@" >> "$GITHUB_OUTPUT"
+        xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE --output ${{ runner.temp }}/report.txt
       env:
         INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
     - name: Report linting status
       id: reporting
       shell: bash
       run: |
-        if [[ "${{ steps.linting.outputs.report }}" == "" ]]; then
+        if [ ! -s "${{ runner.temp }}/report.txt" ]; then
           exit 0
         else
-          echo "$GITHUB_OUTPUT"
+          cat "${{ runner.temp }}/report.txt"
           exit 0
         fi
