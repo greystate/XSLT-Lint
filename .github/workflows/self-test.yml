@@ -1,0 +1,10 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: macos-latest
+
+    name: 'Running XSLTLint on itself'
+    run: xsltproc --xinclude XSLTLint.xslt XSLTLint.xslt
+  
