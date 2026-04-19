@@ -201,7 +201,8 @@
 	<xsl:template match="@select | @test" mode="undeclared-key">
 		<xsl:variable name="keyName" select="substring-before(substring(substring-after(., &KEY_BEGIN;), 2), $apos)" />
 		<xsl:variable name="message" select="concat('A `key()` function used an undeclared key name (', $keyName, ').')" />
-		<xsl:if test="normalize-space($keyName) and not(key('keyNamesIndex', $keyName))">
+		<xsl:variable name="skipTest" select="not(normalize-space($keyName)) or starts-with($keyName, '` function')" />
+		<xsl:if test="not(key('keyNamesIndex', $keyName)) and not($skipTest)">
 			<xsl:choose>
 				<xsl:when test="$includes">
 					<xsl:if test="not(document($includes/@href, /)//xsl:key[@name = $keyName])">
