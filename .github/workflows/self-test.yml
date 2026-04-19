@@ -7,5 +7,7 @@ jobs:
 
     steps:
       - name: Running XSLTLint on itself
-        run: xsltproc --xinclude ${{ github.workspace }}/XSLTLint.xslt ${{ github.workspace }}/XSLTLint.xslt
+        run: |
+          cd ${{ github.action_path }}/../..
+          xsltproc --xinclude XSLTLint.xslt XSLTLint.xslt
   
