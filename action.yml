@@ -11,7 +11,7 @@ runs:
       id: linting
       shell: bash
       run: |
-        xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE --output ${{ runner.temp }}/report.txt
+        xsltproc --output "${{ runner.temp }}/report.txt" --xinclude XSLTLint.xslt $INPUT_XSLT_FILE
       env:
         INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
     - name: Report linting status
