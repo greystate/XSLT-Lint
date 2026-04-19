@@ -1,3 +1,5 @@
+#   xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE >> ${{ runner.temp }}/report.txt
+#   cat ${{ runner.temp }}/report.txt >> "$GITHUB_OUTPUT"
 name: 'XSLT Linter'
 description: 'Check an XSLT stylesheet for some common mistakes'
 inputs:
@@ -10,7 +12,8 @@ runs:
     - name: Check file
       id: linting
       shell: bash
-      run: xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE | echo "report=$@" >> $GITHUB_OUTPUT
+      run: |
+        xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE | echo "report=$@" >> "$GITHUB_OUTPUT"
       env:
         INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
     - name: Report linting status
