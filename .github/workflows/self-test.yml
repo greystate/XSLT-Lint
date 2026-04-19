@@ -3,7 +3,7 @@ on:
 
 jobs:
   test_file:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     name: Run XSLT Lint on itself
     steps:
       - name: Checkout
