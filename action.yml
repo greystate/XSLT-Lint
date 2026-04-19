@@ -1,12 +1,14 @@
-on:
-  workflow_dispatch:
-
-jobs:
-  lint:
-    runs-on: macos-latest
-
-    steps:
-      - name: Running XSLTLint on itself
-        shell: bash
-        run: xsltproc --xinclude $GITHUB_ACTION_PATH/XSLTLint.xslt $GITHUB_ACTION_PATH/XSLTLint.xslt
-
+name: 'XSLT Linter'
+description: 'Check an XSLT stylesheet for some common mistakes'
+inputs:
+  xslt-file:
+    description: 'The stylesheet file to check'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Check file
+      shell: bash
+      run: xsltproc --xinclude XSLTLint.xslt $INPUT_XSLT_FILE
+      env:
+        INPUT_XSLT_FILE: ${{ inputs.xslt-file }}
